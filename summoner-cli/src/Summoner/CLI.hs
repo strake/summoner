@@ -198,7 +198,7 @@ Usage:
              [--prelude-package PACKAGE_NAME]
              [--prelude-module MODULE_NAME]
              [with [OPTIONS]]
-             [without [OPTIONS]]
+             [sans [OPTIONS]]
 @
 
 -}
@@ -400,11 +400,11 @@ newP = do
     stack <- stackP
     preludePack <- optional preludePackP
     preludeMod  <- optional preludeModP
-    with    <- optional withP
-    without <- optional withoutP
+    with <- optional withP
+    sans <- optional sansP
 
     pure $ New $ NewOpts
-        { newOptsCliConfig = (maybeToMonoid $ with <> without)
+        { newOptsCliConfig = (maybeToMonoid $ with <> sans)
             { cPrelude = Last $ CustomPrelude <$> preludePack <*> preludeMod
             , cCabal = cabal
             , cStack = stack
@@ -505,10 +505,10 @@ withP = subparser $ mconcat
     , command "with" $ info (helper <*> targetsP Yes) (progDesc "Specify options to enable")
     ]
 
-withoutP :: Parser PartialConfig
-withoutP = subparser $ mconcat
-    [ metavar "without [OPTIONS]"
-    , command "without" $ info (helper <*> targetsP Nop) (progDesc "Specify options to disable")
+sansP :: Parser PartialConfig
+sansP = subparser $ mconcat
+    [ metavar "sans [OPTIONS]"
+    , command "sans" $ info (helper <*> targetsP Nop) (progDesc "Specify options to disable")
     ]
 
 ignoreFileP :: Parser Bool
@@ -526,7 +526,7 @@ noUploadP = switch $ mconcat
 connectModeP :: Parser ConnectMode
 connectModeP = flag Online Offline $ mconcat
     [ long "offline"
-    , help "Offline mode: create a project with 'All Rights Reserved' license and without uploading to GitHub."
+    , help "Offline mode: create a project with 'All Rights Reserved' license and not uploading to GitHub."
     ]
 
 interactivityP :: Parser Interactivity

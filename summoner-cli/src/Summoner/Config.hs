@@ -58,7 +58,8 @@ type family phase :- field where
 
 -- | Potentially incomplete configuration.
 data ConfigP (p :: Phase) = ConfigP
-    { cOwner      :: !(p :- Text)
+    { cRepoSuffix :: !(Last Text)
+    , cOwner      :: !(p :- Text)
     , cFullName   :: !(p :- Text)
     , cEmail      :: !(p :- Text)
     , cLicense    :: !(p :- LicenseName)
@@ -110,7 +111,8 @@ type Config = ConfigP 'Final
 -- | Default 'Config' configurations.
 defaultConfig :: PartialConfig
 defaultConfig = ConfigP
-    { cOwner        = Last (Just defaultOwner)
+    { cRepoSuffix = pure ""
+    , cOwner        = Last (Just defaultOwner)
     , cFullName     = Last (Just defaultFullName)
     , cEmail        = Last (Just defaultEmail)
     , cLicense      = Last (Just defaultLicenseName)
@@ -137,7 +139,8 @@ defaultConfig = ConfigP
 -- | Identifies how to read 'Config' data from the @.toml@ file.
 configCodec :: TomlCodec PartialConfig
 configCodec = ConfigP
-    <$> Toml.last Toml.text "owner"         .= cOwner
+    <$> Toml.last Toml.text "repo-suffix"   .= cRepoSuffix
+    <*> Toml.last Toml.text "owner"         .= cOwner
     <*> Toml.last Toml.text "fullName"      .= cFullName
     <*> Toml.last Toml.text "email"         .= cEmail
     <*> Toml.last license   "license"       .= cLicense
@@ -211,7 +214,8 @@ guessConfigFromGit = do
 -- | Make sure that all the required configurations options were specified.
 finalise :: PartialConfig -> Validation [Text] Config
 finalise ConfigP{..} = ConfigP
-    <$> fin  "owner"      cOwner
+    <$> pure cRepoSuffix
+    <*> fin  "owner"      cOwner
     <*> fin  "fullName"   cFullName
     <*> fin  "email"      cEmail
     <*> fin  "license"    cLicense

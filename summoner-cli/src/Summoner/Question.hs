@@ -259,13 +259,13 @@ queryManyRepeatOnFail parser = promptLoop
     quote :: Text -> Text
     quote t = "'" <> t <> "'"
 
-checkUniqueName :: Text -> IO Text
-checkUniqueName nm = do
-    exist <- doesExistProjectName nm
+checkUniqueName :: Maybe Text -> Text -> IO Text
+checkUniqueName sufs nm = do
+    exist <- doesExistProjectName (nm <> maybe "" ("." <>) sufs)
     if exist then do
         warningMessage "Project with this name is already exist. Please choose another one"
         newNm <- queryNotNull "Project name: "
-        checkUniqueName newNm
+        checkUniqueName sufs newNm
     else
         pure nm
 

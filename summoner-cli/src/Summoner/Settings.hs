@@ -24,7 +24,8 @@ import Summoner.Tree (TreeFs)
 
 -- | Data needed for project creation.
 data Settings = Settings
-    { settingsRepo           :: !Text   -- ^ repository name
+    { settingsProjectName    :: !Text   -- ^ project name
+    , settingsRepo           :: !Text   -- ^ repository name
     , settingsOwner          :: !Text   -- ^ github username
     , settingsDescription    :: !Text   -- ^ project description
     , settingsFullName       :: !Text   -- ^ full name

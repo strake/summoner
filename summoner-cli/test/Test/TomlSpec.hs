@@ -87,6 +87,7 @@ genSource = do
 
 genPartialConfig :: MonadGen m => m PartialConfig
 genPartialConfig = do
+    cRepoSuffix <- Last <$> Gen.maybe genText
     cOwner      <- Last <$> Gen.maybe genText
     cFullName   <- Last <$> Gen.maybe genText
     cEmail      <- Last <$> Gen.maybe genText

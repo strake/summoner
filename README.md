@@ -474,8 +474,8 @@ Usage:
              [--stack]
              [--prelude-package PACKAGE_NAME]
              [--prelude-module MODULE_NAME]
-             [with    [OPTIONS]]
-             [without [OPTIONS]]
+             [with [OPTIONS]]
+             [sans [OPTIONS]]
 
 Available options:
   -h, --help               Show this help text
@@ -496,7 +496,7 @@ Available options:
 
 Available commands:
   with                     Specify options to enable
-  without                  Specify options to disable
+  sans                     Specify options to disable
 
 Available command options:
   -h, --help               Show this help text
@@ -546,7 +546,7 @@ benchmarks), creates a private repository on GitHub with the GitHub Actions CI,
 Travis CI and AppVeyor CI integrated.
 
 ```shell
-summon new my-project with -letgcpwa without -b --prelude-package relude --prelude-module Relude
+summon new my-project with -letgcpwa sans -b --prelude-package relude --prelude-module Relude
 ```
 
 #### **summon config** command: [↑](#structure)

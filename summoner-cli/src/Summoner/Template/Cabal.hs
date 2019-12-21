@@ -20,7 +20,7 @@ import Summoner.GhcVer (cabalBaseVersions, showGhcVer)
 import Summoner.License (LicenseName (..))
 import Summoner.Settings (Settings (..))
 import Summoner.Template.Mempty (memptyIfFalse)
-import Summoner.Text (endLine, intercalateMap, packageToModule)
+import Summoner.Text (endLine, intercalateMap)
 import Summoner.Tree (TreeFs (..))
 
 import qualified Data.Text as T
@@ -28,7 +28,7 @@ import qualified Data.Text as T
 
 -- | Creates a `.cabal` file from the given 'Settings'.
 cabalFile :: Settings -> TreeFs
-cabalFile Settings{..} = File (toString settingsRepo ++ ".cabal") cabalFileContent
+cabalFile Settings{..} = File (toString settingsProjectName ++ ".cabal") cabalFileContent
   where
     cabalFileContent :: Text
     cabalFileContent = T.concat
@@ -38,14 +38,14 @@ cabalFile Settings{..} = File (toString settingsRepo ++ ".cabal") cabalFileConte
         , memptyIfFalse settingsIsLib libraryStanza
         , memptyIfFalse settingsIsExe executableStanza
         , memptyIfFalse settingsTest  testSuiteStanza
-        , memptyIfFalse settingsBench $ benchmarkStanza $ memptyIfFalse settingsIsLib $ ", " <> settingsRepo
+        , memptyIfFalse settingsBench $ benchmarkStanza $ memptyIfFalse settingsIsLib $ ", " <> settingsProjectName
         ]
 
     -- TODO: do something to not have empty lines
     cabalHeader :: Text
     cabalHeader = unlines $
         [ "cabal-version:       " <> defaultCabal
-        , "name:                " <> settingsRepo
+        , "name:                " <> settingsProjectName
         , "version:             0.0.0.0"
         , "synopsis:            " <> settingsDescription
         , "description:         " <> settingsDescription ] ++
@@ -67,9 +67,8 @@ cabalFile Settings{..} = File (toString settingsRepo ++ ".cabal") cabalFileConte
     githubUrl        = "https://github.com/" <> settingsOwner <> "/" <> settingsRepo
     githubBugReports = githubUrl <> "/issues"
 
-    licenseName, libModuleName :: Text
-    licenseName   = show settingsLicenseName
-    libModuleName = packageToModule settingsRepo
+    licenseName :: Text
+    licenseName = show settingsLicenseName
 
     testedGhcs :: Text
     testedGhcs = intercalateMap
@@ -86,15 +85,17 @@ cabalFile Settings{..} = File (toString settingsRepo ++ ".cabal") cabalFileConte
           location:            ${githubUrl}.git
         |]
 
+    commonStanzaName :: Text
+    commonStanzaName = "c"
+
     commonStanza :: Text
     commonStanza =
         [text|
         $endLine
-        common common-options
+        common $commonStanzaName
           build-depends:       base $baseBounds
           $customPrelude
           $ghcOptions
-
           default-language:    Haskell2010
     |] <> defaultExtensions
 
@@ -134,44 +135,47 @@ cabalFile Settings{..} = File (toString settingsRepo ++ ".cabal") cabalFileConte
         [text|
         $endLine
         library
-          import:              common-options
+          import:              $commonStanzaName
           hs-source-dirs:      src
-          exposed-modules:     $libModuleName
+          exposed-modules:     
         |]
 
     executableStanza :: Text
     executableStanza =
         [text|
         $endLine
-        executable $settingsRepo
-          import:              common-options
-          hs-source-dirs:      app
+        executable $settingsProjectName
+          import:              $commonStanzaName
+          hs-source-dirs:      $executableSourceDir
           main-is:             Main.hs
           $buildDepends
           $rtsOptions
         |]
 
+    executableSourceDir :: Text
+    executableSourceDir = "x"
+
     testSuiteStanza :: Text
     testSuiteStanza =
         [text|
         $endLine
-        test-suite ${settingsRepo}-test
-          import:              common-options
+        test-suite test
+          import:              $commonStanzaName
           type:                exitcode-stdio-1.0
           hs-source-dirs:      test
           main-is:             Spec.hs
           $buildDepends
           $rtsOptions
-        |]
+          |]
 
     benchmarkStanza :: Text -> Text
     benchmarkStanza commaRepo =
         [text|
         $endLine
-        benchmark ${settingsRepo}-benchmark
-          import:              common-options
+        benchmark bench
+          import:              $commonStanzaName
           type:                exitcode-stdio-1.0
-          hs-source-dirs:      benchmark
+          hs-source-dirs:      bench
           main-is:             Main.hs
           build-depends:       gauge
                              $commaRepo
@@ -182,7 +186,7 @@ cabalFile Settings{..} = File (toString settingsRepo ++ ".cabal") cabalFileConte
     buildDepends :: Text
     buildDepends =
         if settingsIsLib
-        then "build-depends:       " <> settingsRepo
+        then "build-depends:       " <> settingsProjectName
         else ""
 
     rtsOptions :: Text
@@ -209,5 +213,5 @@ cabalFile Settings{..} = File (toString settingsRepo ++ ".cabal") cabalFileConte
     defaultExtensions = case settingsExtensions of
         [] -> ""
         xs -> "  default-extensions:  "
-           <> T.intercalate "\n                       " xs
+           <> T.intercalate "\n    " xs
            <> "\n"

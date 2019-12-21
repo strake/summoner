@@ -61,7 +61,8 @@ generateProjectInteractive
     -> Config         -- ^ Given configurations.
     -> IO ()
 generateProjectInteractive connectMode projectName ConfigP{..} = do
-    settingsRepo <- checkUniqueName projectName
+    let settingsRepo = projectName <> (fromMaybe "" . getLast) cRepoSuffix
+    settingsProjectName <- checkUniqueName (getLast cRepoSuffix) settingsRepo
     -- decide cabal stack or both
     (settingsCabal, settingsStack) <- getCabalStack (cCabal, cStack)
 
@@ -218,7 +219,8 @@ generateProjectNonInteractive connectMode projectName ConfigP{..} = do
     when isNonUnique $ do
         errorMessage "Project with this name is already exist. Please choose another one."
         exitFailure
-    let settingsRepo = projectName
+    let settingsProjectName = projectName
+        settingsRepo = projectName <> (fromMaybe "" . getLast) cRepoSuffix
     -- decide cabal stack or both
     let (settingsCabal, settingsStack) = decisionsToBools (cCabal, cStack)
 
@@ -287,7 +289,7 @@ doGithubCommands Settings{..} = do
     -- Create git repostitory and do a commit.
     "git" ["init"]
     "git" ["add", "."]
-    "git" ["commit", "-m", "Create the project"]
+    "git" ["commit", "-m", "Start"]
     unless settingsNoUpload $ do
         let repo = settingsOwner <> "/" <> settingsRepo
         hubInstalled <- findExecutable "hub"

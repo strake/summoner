@@ -67,7 +67,8 @@ sortTree = \case
 
 fullBatteries :: Settings
 fullBatteries = Settings
-    { settingsRepo           = "full-batteries"
+    { settingsProjectName    = "full-batteries"
+    , settingsRepo           = "full-batteries"
     , settingsOwner          = "kowainik"
     , settingsDescription    = "Full-featured test project"
     , settingsFullName       = "Kowainik"
@@ -128,7 +129,8 @@ SOFTWARE.
 
 stackFull :: Settings
 stackFull = Settings
-    { settingsRepo           = "stack-full"
+    { settingsProjectName    = "stack-full"
+    , settingsRepo           = "stack-full"
     , settingsOwner          = "kowainik"
     , settingsDescription    = "Stack-only example with all integrations"
     , settingsFullName       = "Kowainik"
@@ -159,7 +161,8 @@ stackFull = Settings
 
 cabalFull :: Settings
 cabalFull = Settings
-    { settingsRepo           = "cabal-full"
+    { settingsProjectName    = "cabal-full"
+    , settingsRepo           = "cabal-full"
     , settingsOwner          = "kowainik"
     , settingsDescription    = "Cabal-only example with all integrations"
     , settingsFullName       = "Kowainik"
@@ -190,7 +193,8 @@ cabalFull = Settings
 
 cabalMinimal :: Settings
 cabalMinimal = Settings
-    { settingsRepo           = "cabal-minimal"
+    { settingsProjectName    = "cabal-minimal"
+    , settingsRepo           = "cabal-minimal"
     , settingsOwner          = "kowainik"
     , settingsDescription    = "Minimal cabal-only test project"
     , settingsFullName       = "Kowainik"

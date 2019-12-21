@@ -15,44 +15,17 @@ module Summoner.Template.Haskell
 import NeatInterpolation (text)
 
 import Summoner.Settings (Settings (..))
-import Summoner.Text (packageToModule)
 import Summoner.Tree (TreeFs (..))
 
 
 haskellFiles :: Settings -> [TreeFs]
 haskellFiles Settings{..} = concat
-    [ [ Dir "src"       [libFile]       | settingsIsLib ]
-    , [ Dir "app"       [exeFile]       | settingsIsExe ]
+    [ [ Dir "src"       []              | settingsIsLib ]
+    , [ Dir "x"         [exeFile]       | settingsIsExe ]
     , [ Dir "test"      [testFile]      | settingsTest  ]
-    , [ Dir "benchmark" [benchmarkFile] | settingsBench ]
+    , [ Dir "bench"     [benchmarkFile] | settingsBench ]
     ]
   where
-    libFile :: TreeFs
-    libFile = File (toString libModuleName <> ".hs")
-        [text|
-        {- |
-        Copyright: (c) $settingsYear $settingsFullName
-        SPDX-License-Identifier: $licenseName
-        Maintainer: $settingsFullName <$settingsEmail>
-
-        $settingsDescription
-        -}
-
-        module $libModuleName
-               ( someFunc
-               ) where
-
-
-        someFunc :: IO ()
-        someFunc = putStrLn ("someFunc" :: String)
-        |]
-
-    libModuleName :: Text
-    libModuleName = packageToModule settingsRepo
-
-    licenseName :: Text
-    licenseName = show settingsLicenseName
-
     exeFile :: TreeFs
     exeFile = File "Main.hs" $ if settingsIsLib then createExe else createOnlyExe
 
@@ -71,11 +44,8 @@ haskellFiles Settings{..} = concat
         [text|
         module Main (main) where
 
-        import $libModuleName (someFunc)
-
-
         main :: IO ()
-        main = someFunc
+        main = pure ()
         |]
 
     testFile :: TreeFs

@@ -63,3 +63,6 @@ headToUpper t = case T.uncons t of
 -- | Convert every element of a list into text, and squash the results
 tconcatMap :: (a -> Text) -> [a] -> Text
 tconcatMap f = T.concat . map f
+
+stripTrailingWhitespace :: Text -> Text
+stripTrailingWhitespace = T.intercalate "\n" . fmap (T.dropWhileEnd C.isSpace) . T.split (== '\n')

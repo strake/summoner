@@ -20,7 +20,7 @@ import Summoner.GhcVer (cabalBaseVersions, showGhcVer)
 import Summoner.License (LicenseName (..))
 import Summoner.Settings (Settings (..))
 import Summoner.Template.Mempty (memptyIfFalse)
-import Summoner.Text (endLine, intercalateMap)
+import Summoner.Text (endLine, intercalateMap, stripTrailingWhitespace)
 import Summoner.Tree (TreeFs (..))
 
 import qualified Data.Text as T
@@ -31,7 +31,7 @@ cabalFile :: Settings -> TreeFs
 cabalFile Settings{..} = File (toString settingsProjectName ++ ".cabal") cabalFileContent
   where
     cabalFileContent :: Text
-    cabalFileContent = T.concat
+    cabalFileContent = stripTrailingWhitespace $ T.concat
         [ cabalHeader
         , memptyIfFalse settingsGitHub sourceRepository
         , commonStanza
